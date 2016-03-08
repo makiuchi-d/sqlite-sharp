@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Sqlite
+namespace SqliteSharp
 {
 	public class Statement
 	{

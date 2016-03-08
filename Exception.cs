@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Sqlite
+namespace SqliteSharp
 {
 	public class Exception: System.Exception
 	{

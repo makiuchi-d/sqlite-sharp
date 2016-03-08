@@ -3,7 +3,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Collections;
 
-namespace Sqlite
+namespace SqliteSharp
 {
 	public class Database
 	{
