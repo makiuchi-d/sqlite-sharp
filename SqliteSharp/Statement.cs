@@ -79,14 +79,68 @@ namespace SqliteSharp
 		[DllImport("sqlite3", EntryPoint = "sqlite3_column_bytes")]
 		private static extern int sqlite3_column_bytes(IntPtr pStmt, int iCol);
 
+		class EnumerableRows: IEnumerable<DataRow>
+		{
+			readonly IntPtr pStmt;
+
+			public EnumerableRows(IntPtr pStmt)
+			{
+				this.pStmt = pStmt;
+			}
+
+			object fetchColumn(int iCol)
+			{
+				switch(sqlite3_column_type(pStmt, iCol)){
+					case SQLITE_INTEGER:
+						return (object)sqlite3_column_int(pStmt, iCol);
+					case SQLITE_FLOAT:
+						return (object)sqlite3_column_double(pStmt, iCol);
+					case SQLITE_TEXT:
+						var pText = sqlite3_column_text(pStmt, iCol);
+						return Marshal.PtrToStringAnsi(pText);
+					case SQLITE_BLOB:
+						IntPtr blob = sqlite3_column_blob(pStmt, iCol);
+						int size = sqlite3_column_bytes(pStmt, iCol);
+						var data = new byte[size];
+						Marshal.Copy(blob, data, 0, size);
+						return data;
+				}
+				return null;
+			}
+
+			public IEnumerator<DataRow> GetEnumerator()
+			{
+				int cc = sqlite3_column_count(pStmt);
+				var cnames = new List<string>(cc);
+				for(var i=0; i<cc; ++i){
+					cnames.Add(Marshal.PtrToStringAnsi(sqlite3_column_name(pStmt,i)));
+				}
+
+				do{
+					var row = new DataRow();
+					for(var i=0; i<cc; ++i){
+						row[cnames[i]] = fetchColumn(i);
+					}
+					yield return row;
+				}while(sqlite3_step(pStmt) == SQLITE_ROW);
+			}
+
+			IEnumerator IEnumerable.GetEnumerator()
+			{
+				return this.GetEnumerator();
+			}
+		}
+
+		static readonly IEnumerable<DataRow> EmptyRows = new List<DataRow>();
+
 		readonly IntPtr pStmt;
-		List<string> fetchingColumns = new List<string>();
 		bool executed;
-		int lastStepResult;
+		public IEnumerable<DataRow> Rows { get; private set; }
 
 		public Statement(IntPtr pStmt)
 		{
 			this.pStmt = pStmt;
+			Rows = EmptyRows;
 		}
 
 		~Statement()
@@ -153,7 +207,6 @@ namespace SqliteSharp
 		{
 			if(executed){
 				sqlite3_reset(pStmt);
-				fetchingColumns.Clear();
 			}
 			executed = false;
 		}
@@ -162,10 +215,11 @@ namespace SqliteSharp
 		{
 			resetIfExecuted();
 
-			lastStepResult = sqlite3_step(pStmt);
+			var result = sqlite3_step(pStmt);
 			executed = true;
+			Rows = (result == SQLITE_ROW)? new EnumerableRows(pStmt): EmptyRows;
 
-			return lastStepResult == SQLITE_DONE || lastStepResult == SQLITE_ROW;
+			return result == SQLITE_DONE || result == SQLITE_ROW;
 		}
 
 		public bool Execute(IList param)
@@ -182,58 +236,10 @@ namespace SqliteSharp
 			return Execute();
 		}
 
-		List<string> fetchColumnNames(){
-			if(fetchingColumns.Count == 0){
-				int columnCount = sqlite3_column_count(pStmt);
-				for(var i=0; i<columnCount; ++i){
-					fetchingColumns.Add(Marshal.PtrToStringAnsi(sqlite3_column_name(pStmt, i)));
-				}
-			}
-			return fetchingColumns;
-		}
-
-		object fetchColumn(int iCol)
-		{
-			switch(sqlite3_column_type(pStmt, iCol)){
-			case SQLITE_INTEGER:
-				return (object)sqlite3_column_int(pStmt, iCol);
-			case SQLITE_FLOAT:
-				return (object)sqlite3_column_double(pStmt, iCol);
-			case SQLITE_TEXT:
-				var pText = sqlite3_column_text(pStmt, iCol);
-				return Marshal.PtrToStringAnsi(pText);
-			case SQLITE_BLOB:
-				IntPtr blob = sqlite3_column_blob(pStmt, iCol);
-				int size = sqlite3_column_bytes(pStmt, iCol);
-				var data = new byte[size];
-				Marshal.Copy(blob, data, 0, size);
-				return data;
-			}
-			return null;
-		}
-
-		public DataRow Fetch()
-		{
-			if(lastStepResult != SQLITE_ROW){
-				return null;
-			}
-
-			var columns = fetchColumnNames();
-
-			var row = new DataRow();
-			for(var i=0; i<columns.Count; ++i){
-				row[columns[i]] = fetchColumn(i);
-			}
-
-			lastStepResult = sqlite3_step(pStmt);
-			return row;
-		}
-
 		public List<DataRow> FetchAll()
 		{
 			var s = new List<DataRow>();
-			DataRow row;
-			while((row=Fetch())!=null){
+			foreach(var row in Rows){
 				s.Add(row);
 			}
 			return s;
