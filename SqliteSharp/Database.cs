@@ -41,34 +41,28 @@ namespace SqliteSharp
 		public Statement Prepare(string query)
 		{
 			Open();
-			IntPtr stmt = Sqlite3.PrepareV2(db, query);
+			IntPtr stmt = Sqlite3.Prepare(db, query);
 			return new Statement(db, stmt);
 		}
 
 		public Statement Query(string query)
 		{
 			var stmt = Prepare(query);
-			if(!stmt.Execute()){
-				throw new Exception(Sqlite3.Errmsg(db));
-			}
+			stmt.Execute();
 			return stmt;
 		}
 
 		public Statement Query(string query, IList param)
 		{
 			var stmt = Prepare(query);
-			if(!stmt.Execute(param)){
-				throw new Exception(Sqlite3.Errmsg(db));
-			}
+			stmt.Execute(param);
 			return stmt;
 		}
 
 		public Statement Query(string query, IDictionary param)
 		{
 			var stmt = Prepare(query);
-			if(!stmt.Execute(param)){
-				throw new Exception(Sqlite3.Errmsg(db));
-			}
+			stmt.Execute(param);
 			return stmt;
 		}
 
