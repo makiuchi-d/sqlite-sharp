@@ -131,14 +131,16 @@ namespace SqliteSharp
 			}
 		}
 
-		static readonly IEnumerable<DataRow> EmptyRows = new List<DataRow>();
+		static readonly IEnumerable<DataRow> EmptyRows = new DataRow[0];
 
+		readonly IntPtr db;
 		readonly IntPtr pStmt;
 		bool executed;
 		public IEnumerable<DataRow> Rows { get; private set; }
 
-		public Statement(IntPtr pStmt)
+		public Statement(IntPtr db, IntPtr pStmt)
 		{
+			this.db = db;
 			this.pStmt = pStmt;
 			Rows = EmptyRows;
 		}
@@ -234,15 +236,6 @@ namespace SqliteSharp
 			resetIfExecuted();
 			BindParams(param);
 			return Execute();
-		}
-
-		public List<DataRow> FetchAll()
-		{
-			var s = new List<DataRow>();
-			foreach(var row in Rows){
-				s.Add(row);
-			}
-			return s;
 		}
 
 	}
