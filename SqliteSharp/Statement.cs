@@ -55,6 +55,11 @@ namespace SqliteSharp
 			Sqlite3.Finalize(pStmt);
 		}
 
+		public void ClearBindings()
+		{
+			Sqlite3.ClearBindings(db, pStmt);
+		}
+
 		public void Bind(int index, object value)
 		{
 			Sqlite3.Bind(db, pStmt, index, value);
@@ -68,7 +73,7 @@ namespace SqliteSharp
 
 		public void BindParams(IList param)
 		{
-			Sqlite3.ClearBindings(db, pStmt);
+			ClearBindings();
 			var count = param.Count;
 			for(var i=0; i<count; ++i){
 				Bind(i+1, param[i]);
@@ -77,7 +82,7 @@ namespace SqliteSharp
 
 		public void BindParams(IDictionary param)
 		{
-			Sqlite3.ClearBindings(db, pStmt);
+			ClearBindings();
 			foreach(DictionaryEntry kv in param){
 				var key = kv.Key;
 				if(key is string){
