@@ -92,26 +92,31 @@ namespace SqliteSharp
 			}
 		}
 
+		private bool executeFirstStep()
+		{
+			bool hasRow = Sqlite3.Step(db, pStmt);
+			Rows = (hasRow)? new EnumerableRows(db, pStmt): EmptyRows;
+			return hasRow;
+		}
+
 		public bool Execute()
 		{
 			Sqlite3.Reset(db, pStmt);
-
-			bool hasRow = Sqlite3.Step(db, pStmt);
-			Rows = (hasRow)? new EnumerableRows(db, pStmt): EmptyRows;
-
-			return hasRow;
+			return executeFirstStep();
 		}
 
 		public bool Execute(IList param)
 		{
+			Sqlite3.Reset(db, pStmt);
 			BindParams(param);
-			return Execute();
+			return executeFirstStep();
 		}
 
 		public bool Execute(IDictionary param)
 		{
+			Sqlite3.Reset(db, pStmt);
 			BindParams(param);
-			return Execute();
+			return executeFirstStep();
 		}
 
 	}

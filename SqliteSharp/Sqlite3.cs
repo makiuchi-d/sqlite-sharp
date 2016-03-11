@@ -201,7 +201,7 @@ namespace SqliteSharp
 		{
 			int result = sqlite3_step(pStmt);
 
-			if(result != SQLITE_ROW || result != SQLITE_DONE){
+			if(result != SQLITE_ROW && result != SQLITE_DONE){
 				throw new Exception(Errmsg(db));
 			}
 
