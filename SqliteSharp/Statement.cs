@@ -42,12 +42,14 @@ namespace SqliteSharp
 		readonly IntPtr db;
 		readonly IntPtr pStmt;
 		public IEnumerable<DataRow> Rows { get; private set; }
+		private bool executed;
 
 		public Statement(IntPtr db, IntPtr pStmt)
 		{
 			this.db = db;
 			this.pStmt = pStmt;
 			Rows = EmptyRows;
+			executed = false;
 		}
 
 		~Statement()
@@ -55,8 +57,17 @@ namespace SqliteSharp
 			Sqlite3.Finalize(pStmt);
 		}
 
+		private void resetIfExecuted()
+		{
+			if(executed){
+				Sqlite3.Reset(db, pStmt);
+				executed = false;
+			}
+		}
+
 		public void ClearBindings()
 		{
+			resetIfExecuted();
 			Sqlite3.ClearBindings(db, pStmt);
 		}
 
@@ -97,31 +108,27 @@ namespace SqliteSharp
 			}
 		}
 
-		private bool executeFirstStep()
-		{
-			bool hasRow = Sqlite3.Step(db, pStmt);
-			Rows = (hasRow)? new EnumerableRows(db, pStmt): EmptyRows;
-			return hasRow;
-		}
-
 		public bool Execute()
 		{
-			Sqlite3.Reset(db, pStmt);
-			return executeFirstStep();
+			resetIfExecuted();
+			bool hasRow = Sqlite3.Step(db, pStmt);
+			Rows = (hasRow)? new EnumerableRows(db, pStmt): EmptyRows;
+			executed = true;
+			return hasRow;
 		}
 
 		public bool Execute(IList param)
 		{
-			Sqlite3.Reset(db, pStmt);
+			resetIfExecuted();
 			BindParams(param);
-			return executeFirstStep();
+			return Execute();
 		}
 
 		public bool Execute(IDictionary param)
 		{
-			Sqlite3.Reset(db, pStmt);
+			resetIfExecuted();
 			BindParams(param);
-			return executeFirstStep();
+			return Execute();
 		}
 
 	}
