@@ -108,23 +108,23 @@ namespace SqliteSharp
 			}
 		}
 
-		public bool Execute()
+		public Statement Execute()
 		{
 			resetIfExecuted();
 			bool hasRow = Sqlite3.Step(db, pStmt);
 			Rows = (hasRow)? new EnumerableRows(db, pStmt): EmptyRows;
 			executed = true;
-			return hasRow;
+			return this;
 		}
 
-		public bool Execute(IList param)
+		public Statement Execute(IList param)
 		{
 			resetIfExecuted();
 			BindParams(param);
 			return Execute();
 		}
 
-		public bool Execute(IDictionary param)
+		public Statement Execute(IDictionary param)
 		{
 			resetIfExecuted();
 			BindParams(param);
