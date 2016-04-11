@@ -7,6 +7,8 @@ namespace SqliteSharp
 {
 	static class Sqlite3
 	{
+		const string dllname = "sqlite3";
+
 		public const int SQLITE_OK = 0;
 		public const int SQLITE_ROW = 100;
 		public const int SQLITE_DONE = 101;
@@ -17,7 +19,7 @@ namespace SqliteSharp
 		public const int SQLITE_BLOB = 4;
 		public const int SQLITE_NULL = 5;
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_open")]
+		[DllImport(dllname, EntryPoint = "sqlite3_open")]
 		static extern int sqlite3_open(string filename, out IntPtr ppDb);
 
 		public static IntPtr Open(string filename)
@@ -29,7 +31,7 @@ namespace SqliteSharp
 			return db;
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_close")]
+		[DllImport(dllname, EntryPoint = "sqlite3_close")]
 		static extern int sqlite3_close(IntPtr db);
 
 		public static int Close(IntPtr db)
@@ -37,7 +39,7 @@ namespace SqliteSharp
 			return sqlite3_close(db);
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_errmsg")]
+		[DllImport(dllname, EntryPoint = "sqlite3_errmsg")]
 		static extern IntPtr sqlite3_errmsg(IntPtr db);
 
 		public static string Errmsg(IntPtr db)
@@ -46,7 +48,7 @@ namespace SqliteSharp
 			return Marshal.PtrToStringAnsi(err);
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_prepare_v2")]
+		[DllImport(dllname, EntryPoint = "sqlite3_prepare_v2")]
 		static extern int sqlite3_prepare_v2(IntPtr db, string zSql, int nByte, out IntPtr ppStmt, IntPtr pzTail);
 
 		public static IntPtr Prepare(IntPtr db, string sql)
@@ -59,7 +61,7 @@ namespace SqliteSharp
 			return stmt;
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_finalize")]
+		[DllImport(dllname, EntryPoint = "sqlite3_finalize")]
 		static extern int sqlite3_finalize(IntPtr pStmt);
 
 		public static int Finalize(IntPtr pStmt)
@@ -67,7 +69,7 @@ namespace SqliteSharp
 			return sqlite3_finalize(pStmt);
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_reset")]
+		[DllImport(dllname, EntryPoint = "sqlite3_reset")]
 		static extern int sqlite3_reset(IntPtr pStmt);
 
 		public static int Reset(IntPtr pStmt)
@@ -82,7 +84,7 @@ namespace SqliteSharp
 			}
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_clear_bindings")]
+		[DllImport(dllname, EntryPoint = "sqlite3_clear_bindings")]
 		static extern int sqlite3_clear_bindings(IntPtr pStmt);
 
 		public static int ClearBindings(IntPtr pStmt)
@@ -97,7 +99,7 @@ namespace SqliteSharp
 			}
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_bind_parameter_index")]
+		[DllImport(dllname, EntryPoint = "sqlite3_bind_parameter_index")]
 		static extern int sqlite3_bind_parameter_index(IntPtr pStmt, string zName);
 
 		public static int BindParameterIndex(IntPtr pStmt, string name)
@@ -113,7 +115,7 @@ namespace SqliteSharp
 			}
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_bind_blob")]
+		[DllImport(dllname, EntryPoint = "sqlite3_bind_blob")]
 		static extern int sqlite3_bind_blob(IntPtr pStmt, int i, byte[] data, int len , IntPtr func);
 
 		public static int BindBlob(IntPtr pStmt, int i, byte[] value)
@@ -122,7 +124,7 @@ namespace SqliteSharp
 			return sqlite3_bind_blob(pStmt, i, value, len, IntPtr.Zero);
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_bind_double")]
+		[DllImport(dllname, EntryPoint = "sqlite3_bind_double")]
 		static extern int sqlite3_bind_double(IntPtr pStmt, int i, double value);
 
 		public static int BindDouble(IntPtr pStmt, int i, double value)
@@ -130,7 +132,7 @@ namespace SqliteSharp
 			return sqlite3_bind_double(pStmt, i, value);
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_bind_int")]
+		[DllImport(dllname, EntryPoint = "sqlite3_bind_int")]
 		static extern int sqlite3_bind_int(IntPtr pStmt, int i, int value);
 
 		public static int BindInt(IntPtr pStmt, int i, int value)
@@ -138,7 +140,7 @@ namespace SqliteSharp
 			return sqlite3_bind_int(pStmt, i, value);
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_bind_null")]
+		[DllImport(dllname, EntryPoint = "sqlite3_bind_null")]
 		static extern int sqlite3_bind_null(IntPtr pStmt, int i);
 
 		public static int BindNull(IntPtr pStmt, int i)
@@ -146,7 +148,7 @@ namespace SqliteSharp
 			return sqlite3_bind_null(pStmt, i);
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_bind_text")]
+		[DllImport(dllname, EntryPoint = "sqlite3_bind_text")]
 		static extern int sqlite3_bind_text(IntPtr pStmt, int i, byte[] value, int nByte, IntPtr func);
 
 		public static int BindText(IntPtr pStmt, int i, string value)
@@ -157,10 +159,10 @@ namespace SqliteSharp
 			return sqlite3_bind_text(pStmt, i, data, len, IntPtr.Zero);
 		}
 
-		//[DllImport("sqlite3", EntryPoint = "sqlite3_bind_value")]
+		//[DllImport(dllname, EntryPoint = "sqlite3_bind_value")]
 		//static extern int sqlite3_bind_value(IntPtr pStmt, int i, IntPtr pValue);
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_bind_zeroblob")]
+		[DllImport(dllname, EntryPoint = "sqlite3_bind_zeroblob")]
 		static extern int sqlite3_bind_zeroblob(IntPtr pStmt, int i, int n);
 
 		public static int BindZeroBlob(IntPtr pStmt, int i, int n)
@@ -194,7 +196,7 @@ namespace SqliteSharp
 			}
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_step")]
+		[DllImport(dllname, EntryPoint = "sqlite3_step")]
 		static extern int sqlite3_step(IntPtr pStmt);
 
 		public static bool Step(IntPtr db, IntPtr pStmt)
@@ -208,7 +210,7 @@ namespace SqliteSharp
 			return result == SQLITE_ROW;
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_column_count")]
+		[DllImport(dllname, EntryPoint = "sqlite3_column_count")]
 		static extern int sqlite3_column_count(IntPtr pStmt);
 
 		public static int ColumnCount(IntPtr pStmt)
@@ -216,7 +218,7 @@ namespace SqliteSharp
 			return sqlite3_column_count(pStmt);
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_column_name")]
+		[DllImport(dllname, EntryPoint = "sqlite3_column_name")]
 		static extern IntPtr sqlite3_column_name(IntPtr pStmt, int iCol);
 
 		public static string ColumnName(IntPtr pStmt, int iCol)
@@ -235,7 +237,7 @@ namespace SqliteSharp
 			return names;
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_column_type")]
+		[DllImport(dllname, EntryPoint = "sqlite3_column_type")]
 		static extern int sqlite3_column_type(IntPtr pStmt, int iCol);
 
 		public static int ColumnType(IntPtr pStmt, int iCol)
@@ -243,7 +245,7 @@ namespace SqliteSharp
 			return sqlite3_column_type(pStmt, iCol);
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_column_int")]
+		[DllImport(dllname, EntryPoint = "sqlite3_column_int")]
 		static extern int sqlite3_column_int(IntPtr pStmt, int iCol);
 
 		public static int ColumnInt(IntPtr pStmt, int iCol)
@@ -251,7 +253,7 @@ namespace SqliteSharp
 			return sqlite3_column_int(pStmt, iCol);
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_column_text")]
+		[DllImport(dllname, EntryPoint = "sqlite3_column_text")]
 		static extern IntPtr sqlite3_column_text(IntPtr pStmt, int iCol);
 
 		public static string ColumnText(IntPtr pStmt, int iCol)
@@ -260,7 +262,7 @@ namespace SqliteSharp
 			return Marshal.PtrToStringAnsi(pStr);
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_column_double")]
+		[DllImport(dllname, EntryPoint = "sqlite3_column_double")]
 		static extern double sqlite3_column_double(IntPtr pStmt, int iCol);
 
 		public static double ColumnDouble(IntPtr pStmt, int iCol)
@@ -268,7 +270,7 @@ namespace SqliteSharp
 			return sqlite3_column_double(pStmt, iCol);
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_column_bytes")]
+		[DllImport(dllname, EntryPoint = "sqlite3_column_bytes")]
 		static extern int sqlite3_column_bytes(IntPtr pStmt, int iCol);
 
 		public static int ColumnBytes(IntPtr pStmt, int iCol)
@@ -276,7 +278,7 @@ namespace SqliteSharp
 			return sqlite3_column_bytes(pStmt, iCol);
 		}
 
-		[DllImport("sqlite3", EntryPoint = "sqlite3_column_blob")]
+		[DllImport(dllname, EntryPoint = "sqlite3_column_blob")]
 		static extern IntPtr sqlite3_column_blob(IntPtr pStmt, int iCol);
 
 		public static byte[] ColumnBlob(IntPtr pStmt, int iCol)
