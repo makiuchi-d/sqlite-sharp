@@ -9,7 +9,7 @@ CSCFLAGS = -r:$(NUNIT_FW_PATH)/nunit.framework.dll -target:library
 TEST = MONO_PATH=$(NUNIT_FW_PATH) nunit-console
 TESTFLAGS = -domain:None
 
-SOURCES = $(shell ls ../SqliteSharp/*.cs)
+SOURCES = ../SqliteSharp/*.cs
 TEST_SOURCES = \
 	DataRowTest.cs \
 	StatementTest.cs \
