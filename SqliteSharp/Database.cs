@@ -30,12 +30,13 @@ namespace SqliteSharp
 			}
 		}
 
-		void Open()
+		public Database Open()
 		{
 			if(isOpen){
-				return;
+				return this;
 			}
 			db = Sqlite3.Open(filePath);
+			return this;
 		}
 
 		public Statement Prepare(string query)

@@ -65,33 +65,37 @@ namespace SqliteSharp
 			}
 		}
 
-		public void ClearBindings()
+		public Statement ClearBindings()
 		{
 			resetIfExecuted();
 			Sqlite3.ClearBindings(db, pStmt);
+			return this;
 		}
 
-		public void Bind(int index, object value)
+		public Statement Bind(int index, object value)
 		{
 			Sqlite3.Bind(db, pStmt, index, value);
+			return this;
 		}
 
-		public void Bind(string name, object value)
+		public Statement Bind(string name, object value)
 		{
 			int index = Sqlite3.BindParameterIndex(pStmt, name);
 			Bind(index, value);
+			return this;
 		}
 
-		public void BindParams(IList param)
+		public Statement BindParams(IList param)
 		{
 			ClearBindings();
 			var count = param.Count;
 			for(var i=0; i<count; ++i){
 				Bind(i+1, param[i]);
 			}
+			return this;
 		}
 
-		public void BindParams(IDictionary param)
+		public Statement BindParams(IDictionary param)
 		{
 			ClearBindings();
 			foreach(DictionaryEntry kv in param){
@@ -106,6 +110,7 @@ namespace SqliteSharp
 					throw new Exception("invalid binding parameter name type: "+key+", "+key.GetType());
 				}
 			}
+			return this;
 		}
 
 		public Statement Execute()
