@@ -6,36 +6,6 @@ namespace SqliteSharp
 {
 	public class Statement
 	{
-		class EnumerableRows: IEnumerable<DataRow>
-		{
-			readonly IntPtr db;
-			readonly IntPtr pStmt;
-
-			public EnumerableRows(IntPtr db, IntPtr pStmt)
-			{
-				this.db = db;
-				this.pStmt = pStmt;
-			}
-
-			public IEnumerator<DataRow> GetEnumerator()
-			{
-				var cnames = Sqlite3.ColumnNames(pStmt);
-				int cc = cnames.Count;
-
-				do{
-					var row = new DataRow();
-					for(var i=0; i<cc; ++i){
-						row[cnames[i]] = Sqlite3.Column(pStmt, i);
-					}
-					yield return row;
-				}while(Sqlite3.Step(db, pStmt));
-			}
-
-			IEnumerator IEnumerable.GetEnumerator()
-			{
-				return GetEnumerator();
-			}
-		}
 
 		static readonly IEnumerable<DataRow> EmptyRows = new DataRow[0];
 
@@ -63,6 +33,20 @@ namespace SqliteSharp
 				Sqlite3.Reset(db, pStmt);
 				executed = false;
 			}
+		}
+
+		private IEnumerable<DataRow> EnumerableRows()
+		{
+			var cnames = Sqlite3.ColumnNames(pStmt);
+			int cc = cnames.Count;
+
+			do{
+				var row = new DataRow();
+				for(var i=0; i<cc; ++i){
+					row[cnames[i]] = Sqlite3.Column(pStmt, i);
+				}
+				yield return row;
+			}while(Sqlite3.Step(db, pStmt));
 		}
 
 		public Statement ClearBindings()
@@ -117,7 +101,7 @@ namespace SqliteSharp
 		{
 			resetIfExecuted();
 			bool hasRow = Sqlite3.Step(db, pStmt);
-			Rows = (hasRow)? new EnumerableRows(db, pStmt): EmptyRows;
+			Rows = (hasRow)? EnumerableRows(): EmptyRows;
 			executed = true;
 			return this;
 		}
